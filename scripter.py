@@ -221,8 +221,8 @@ def playseries(team1, team2, numgames, prbox, prend): #returns winner
         team2.print_pergame_box()
     
     if wins1 > wins2:
-        return team1
-    else: return team2
+        return team1, (series_games - numgames)
+    else: return team2, (series_games - numgames)
 
 def playgame(home, away, prplay, prbox): #home team, away team, print play-by-play (0 or 1), print box at end (0 or 1)
     if prbox==1: 
@@ -347,8 +347,8 @@ def run_play(offense, defense, matches, prplay): #take it possession at time yo
             else:
                 #rebounding, defenders have 3:1 advantage
                 #weighted rebounding advantage calculator, maybe add height adv too l8r
-                reb_adv = (defense.center.rebounding - offense.center.rebounding) + (defense.powerf.rebounding - offense.powerf.rebounding)*0.85 + (defense.smallf.rebounding - offense.smallf.rebounding)*0.7 + (defense.shootg.rebounding - offense.shootg.rebounding)*0.5 + (defense.pointg.rebounding - offense.pointg.rebounding)*0.25
-                reb_adv *= 0.3
+                reb_adv = (defense.center.rebounding - offense.center.rebounding) + (defense.powerf.rebounding - offense.powerf.rebounding)+ (defense.smallf.rebounding - offense.smallf.rebounding)*0.8 + (defense.shootg.rebounding - offense.shootg.rebounding)*0.7 + (defense.pointg.rebounding - offense.pointg.rebounding)*0.5
+                reb_adv *= 0.2
                 if (random.random()*100 + reb_adv) > 25: #defensive reb
                     rebounder = find_rebounder(defense)
                     if prplay==1: print(rebounder.name,"grabs the defensive rebound!")
