@@ -18,9 +18,9 @@ class team:
     @classmethod
     def empty(cls):
         team_prefixes = ["Mc", "Un", "Not", "Big", "Tiny", "Giant", "Red", "Blue",
-                         "Neon", "Swaggish", "White", "Black", "Last", "Best", "Worst"]
+                         "Neon", "Swaggy", "White", "Black", "Last", "Best", "Worst"]
         team_suffixes = ["Armadillos", "Lumberjacks", "Killas", "Dicks", "Diamonds",
-                         "Senators", "Warriors", "Heat", "Bulls", "Tech Support",
+                         "Senators", "Warriors", "Heat", "Bulls", "Techies",
                          "Ballers", "Rioters", "Mofos", "Nazis", "Klansmen"]
         team_name = team_prefixes[random.randint(0, len(team_prefixes)-1)] + " " + team_suffixes[random.randint(0, len(team_suffixes)-1)]
         return cls(team_name, None, None, None, None, None)

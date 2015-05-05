@@ -212,4 +212,4 @@ class Drafter:
                 out_s += random.randint(8, 12)
                 out_d += random.randint(8, 12)
                 
-        return bbplayer(name, pref_pos, height, weight, speed, age, int_s, mid_s, out_s, passing, handling, steal, block, int_d, out_d, rebounding)
+        return bbplayer(name, pref_pos, height, weight, speed, age, int_s, mid_s, out_s, passing, handling, steal, block, int_d, out_d, rebounding, gained_attributes)
