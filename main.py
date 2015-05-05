@@ -121,7 +121,7 @@ class App(Frame):
         for s in range(5):
             starting.insert(END, str(s+1) + " NONE")
 
-        self.done_butt = Button(self, text = "DONE", command = lambda: self.play_season(player_team, opponents_list))
+        self.done_butt = Button(self, text = "Play Season", command = lambda: self.play_season(player_team, opponents_list))
         self.done_butt.grid(row=1,column=2)
 
     def set_player(self, bench, starting, index, player_team, bench_player):
@@ -161,11 +161,14 @@ class App(Frame):
     def review_season(self, teams_arr):
         team_recs = Listbox(self, height = 20, width = 30)
         for t in teams_arr:
-            team_recs.insert(END, str(t.name) + " W-L: " + str(t.wins) + "-" + str(60-t.wins) )
+            team_recs.insert(END, str(t.wins) + "-" + str(60-t.wins) + " : " + str(t.name) )
         team_recs.grid()
 
         examine = Button( self, text="Examine Team", command = lambda: self.examine_team(teams_arr[team_recs.index(ACTIVE)], teams_arr) )
         examine.grid()
+
+        season_awards = Button( self, text="Season Awards", command = lambda: self.season_awards(teams_arr) )
+        season_awards.grid(row=2,column=0)
 
     def examine_team(self, team, teams_arr):
         for widget in self.winfo_children():
@@ -173,35 +176,53 @@ class App(Frame):
 
         team_recs = Listbox(self, height = 20, width = 30)
         for t in teams_arr:
-            team_recs.insert(END, str(t.name) + " W-L: " + str(t.wins) + "-" + str(60-t.wins) )
+            team_recs.insert(END, str(t.wins) + "-" + str(60-t.wins) + " : " + str(t.name) )
         team_recs.grid()
 
         examine = Button( self, text="Examine Team", command = lambda: self.examine_team(teams_arr[team_recs.index(ACTIVE)], teams_arr) )
         examine.grid()
 
-        names = Listbox(self, height=10, width=15)
+        season_awards = Button( self, text="Season Awards", command = lambda: self.season_awards(teams_arr) )
+        season_awards.grid(row=2,column=0)
+
+        names = Listbox(self, height=15, width=16)
         names.grid(row=0,column=1)
-        ppg = Listbox(self, height=10, width=7)
+        names.insert(END, str(team.name)+":")
+        ppg = Listbox(self, height=15, width=7)
         ppg.grid(row=0,column=2)
-        fgp = Listbox(self, height=10, width=7)
+        ppg.insert(END, "PPG:")
+        fgp = Listbox(self, height=15, width=7)
         fgp.grid(row=0,column=3)
-        fp3 = Listbox(self, height=10, width=7)
+        fgp.insert(END, "FG%:")
+        fp3 = Listbox(self, height=15, width=7)
         fp3.grid(row=0,column=4)
-        reb = Listbox(self, height=10, width=7)
+        fp3.insert(END, "3ptFG%:")
+        reb = Listbox(self, height=15, width=7)
         reb.grid(row=0,column=5)
-        ass = Listbox(self, height=10, width=7)
+        reb.insert(END, "REB:")
+        ass = Listbox(self, height=15, width=7)
         ass.grid(row=0,column=6)
-        stl = Listbox(self, height=10, width=7)
+        ass.insert(END, "ASS:")
+        stl = Listbox(self, height=15, width=7)
         stl.grid(row=0,column=7)
-        blk = Listbox(self, height=10, width=7)
+        stl.insert(END, "STL:")
+        blk = Listbox(self, height=15, width=7)
         blk.grid(row=0,column=8)
-        fga = Listbox(self, height=10, width=7)
+        blk.insert(END, "BLK:")
+        fga = Listbox(self, height=15, width=7)
         fga.grid(row=0,column=9)
-        ga3 = Listbox(self, height=10, width=7)
+        fga.insert(END, "FGA:")
+        ga3 = Listbox(self, height=15, width=7)
         ga3.grid(row=0,column=10)
-        msm = Listbox(self, height=10, width=7)
-        msm.grid(row=0,column=11)
-        for p in team.player_array:
+        ga3.insert(END, "3ptFGA:")
+        ofg = Listbox(self, height=15, width=7)
+        ofg.grid(row=0,column=11)
+        ofg.insert(END, "OpFG%:")
+        msm = Listbox(self, height=15, width=7)
+        msm.grid(row=0,column=12)
+        msm.insert(END, "MSM:")
+
+        for p in team.player_array: #stats
             names.insert(END, str(p.name))
             ppg.insert(END, "  " + str(int(p.ppg*10)/10))
             fgp.insert(END, "  " + str(int(p.fgp*1000)/10)+"%")
@@ -212,7 +233,211 @@ class App(Frame):
             blk.insert(END, "  " + str(int(p.bpg*10)/10))
             fga.insert(END, "  " + str(int(p.stats_tot_fga/p.stats_gms)))
             ga3.insert(END, "  " + str(int(p.stats_tot_3ga/p.stats_gms)))
+            ofg.insert(END, "  " + str(int(1000*p.stats_tot_ofm/p.stats_tot_ofa)/10) + "%")
             msm.insert(END, "  " + str(int(p.stats_tot_msm/p.stats_gms)))
+
+        names.insert(END, "TOTAL:")
+
+        tot_ppg = team.pointg.ppg + team.shootg.ppg + team.smallf.ppg + team.powerf.ppg + team.center.ppg
+        tot_fgp = (team.pointg.stats_tot_fgm + team.shootg.stats_tot_fgm+ team.smallf.stats_tot_fgm + team.powerf.stats_tot_fgm +
+                   team.center.stats_tot_fgm)/(team.pointg.stats_tot_fga + team.shootg.stats_tot_fga+ team.smallf.stats_tot_fga + team.powerf.stats_tot_fga + team.center.stats_tot_fga)
+        tot_3fp = (team.pointg.stats_tot_3gm + team.shootg.stats_tot_3gm+ team.smallf.stats_tot_3gm + team.powerf.stats_tot_3gm + 
+                   team.center.stats_tot_3gm)/(team.pointg.stats_tot_3ga + team.shootg.stats_tot_3ga+ team.smallf.stats_tot_3ga + team.powerf.stats_tot_3ga + team.center.stats_tot_3ga + 1) #so no div 0
+        tot_rpg = team.pointg.rpg + team.shootg.rpg + team.smallf.rpg + team.powerf.rpg + team.center.rpg
+        tot_apg = team.pointg.apg + team.shootg.apg + team.smallf.apg + team.powerf.apg + team.center.apg
+        tot_spg = team.pointg.spg + team.shootg.spg + team.smallf.spg + team.powerf.spg + team.center.spg
+        tot_bpg = team.pointg.bpg + team.shootg.bpg + team.smallf.bpg + team.powerf.bpg + team.center.bpg
+        tot_fga = (team.pointg.stats_tot_fga + team.shootg.stats_tot_fga+ team.smallf.stats_tot_fga + team.powerf.stats_tot_fga + team.center.stats_tot_fga)/team.pointg.stats_gms
+        tot_3ga = (team.pointg.stats_tot_3ga + team.shootg.stats_tot_3ga+ team.smallf.stats_tot_3ga + team.powerf.stats_tot_3ga + team.center.stats_tot_3ga)/team.pointg.stats_gms
+        tot_ofp = (team.pointg.stats_tot_ofm + team.shootg.stats_tot_ofm+ team.smallf.stats_tot_ofm + team.powerf.stats_tot_ofm +
+                   team.center.stats_tot_ofm)/(team.pointg.stats_tot_ofa + team.shootg.stats_tot_ofa + team.smallf.stats_tot_ofa + team.powerf.stats_tot_ofa + team.center.stats_tot_ofa)
+
+        ppg.insert(END, "  " + str(int(tot_ppg*10)/10))
+        fgp.insert(END, "  " + str(int(tot_fgp*1000)/10)+"%")
+        fp3.insert(END, "  " + str(int(tot_3fp*999)/10)+"%")
+        reb.insert(END, "  " + str(int(tot_rpg*10)/10))
+        ass.insert(END, "  " + str(int(tot_apg*10)/10))
+        stl.insert(END, "  " + str(int(tot_spg*10)/10)) 
+        blk.insert(END, "  " + str(int(tot_bpg*10)/10))
+        fga.insert(END, "  " + str(int(tot_fga)))
+        ga3.insert(END, "  " + str(int(tot_3ga)))
+        ofg.insert(END, "  " + str(int(tot_ofp*1000)/10)+"%")
+        msm.insert(END, "  ")
+
+        names.insert(END, " ")
+        ppg.insert(END, "  ")
+        fgp.insert(END, "  ")
+        fp3.insert(END, "  ")
+        reb.insert(END, "  ")
+        ass.insert(END, "  ")
+        stl.insert(END, "  ") 
+        blk.insert(END, "  ")
+        fga.insert(END, "  ")
+        ga3.insert(END, "  ")
+        ofg.insert(END, "  ")
+        msm.insert(END, "  ")
+
+        names.insert(END, "NAME:")
+        ppg.insert(END, "HGT:")
+        fgp.insert(END, "INS:")
+        fp3.insert(END, "MID:")
+        reb.insert(END, "OUT:")
+        ass.insert(END, "PAS:")
+        stl.insert(END, "STL:") 
+        blk.insert(END, "BLK:")
+        fga.insert(END, "IND:")
+        ga3.insert(END, "OTD:")
+        ofg.insert(END, "REB:")
+        msm.insert(END, "OVR:")
+
+        for p in team.player_array: #ratings
+            names.insert(END, str(p.name))
+            ppg.insert(END, "  " + str(p.height))
+            fgp.insert(END, "  " + str(p.int_s))
+            fp3.insert(END, "  " + str(p.mid_s))
+            reb.insert(END, "  " + str(p.out_s))
+            ass.insert(END, "  " + str(p.passing))
+            stl.insert(END, "  " + str(p.steal))
+            blk.insert(END, "  " + str(p.block))
+            fga.insert(END, "  " + str(p.int_d))
+            ga3.insert(END, "  " + str(p.out_d))
+            ofg.insert(END, "  " + str(p.rebounding))
+            msm.insert(END, "  " + str(int(100*p.overall/2500)))
+
+    def season_awards(self, teams_arr):
+        mvp, mvp_team, mvp_score, dpy, dpy_team, dpy_score, team, nba_first_team_from, nba_first_team_scores = get_season_awards(teams_arr)
+        for widget in self.winfo_children():
+            widget.destroy()
+
+
+        #mvp and dpoy list
+        mvp_list = Listbox(self, height = 28, width = 27)
+        mvp_list.insert(END, "MVP: "+str(mvp.name))
+        mvp_list.insert(END, "from " + str(mvp_team.name) + " (" + str(mvp_team.wins) + "-" + str(60-mvp_team.wins) + ")")
+        mvp_list.insert(END, "  PPG: " + str(int(mvp.ppg*10)/10))
+        mvp_list.insert(END, "  FGP: " + str(int(mvp.fgp*1000)/10)+"%")
+        mvp_list.insert(END, "  3GP: " + str(int(mvp.fp3*999)/10)+"%")
+        mvp_list.insert(END, "  RPG: " + str(int(mvp.rpg*10)/10))
+        mvp_list.insert(END, "  APG: " + str(int(mvp.apg*10)/10))
+        mvp_list.insert(END, "  SPG: " + str(int(mvp.spg*10)/10)) 
+        mvp_list.insert(END, "  BPG: " + str(int(mvp.bpg*10)/10))
+        mvp_list.insert(END, "  FGA: " + str(int(mvp.stats_tot_fga/mvp.stats_gms)))
+        mvp_list.insert(END, "  3GA: " + str(int(mvp.stats_tot_3ga/mvp.stats_gms)))
+        mvp_list.insert(END, "  OFP: " + str(int(1000*mvp.stats_tot_ofm/mvp.stats_tot_ofa)/10) + "%")
+        mvp_list.insert(END, "  MSM: " + str(int(mvp.stats_tot_msm/mvp.stats_gms)))
+
+        mvp_list.insert(END, " ")
+        mvp_list.insert(END, "DPOY: "+str(dpy.name))
+        mvp_list.insert(END, "from " + str(dpy_team.name) + " (" + str(dpy_team.wins) + "-" + str(60-dpy_team.wins) + ")")
+        mvp_list.insert(END, "  PPG: " + str(int(dpy.ppg*10)/10))
+        mvp_list.insert(END, "  FGP: " + str(int(dpy.fgp*1000)/10)+"%")
+        mvp_list.insert(END, "  3GP: " + str(int(dpy.fp3*999)/10)+"%")
+        mvp_list.insert(END, "  RPG: " + str(int(dpy.rpg*10)/10))
+        mvp_list.insert(END, "  APG: " + str(int(dpy.apg*10)/10))
+        mvp_list.insert(END, "  SPG: " + str(int(dpy.spg*10)/10)) 
+        mvp_list.insert(END, "  BPG: " + str(int(dpy.bpg*10)/10))
+        mvp_list.insert(END, "  FGA: " + str(int(dpy.stats_tot_fga/dpy.stats_gms)))
+        mvp_list.insert(END, "  3GA: " + str(int(dpy.stats_tot_3ga/dpy.stats_gms)))
+        mvp_list.insert(END, "  OFP: " + str(int(1000*dpy.stats_tot_ofm/dpy.stats_tot_ofa)/10) + "%")
+        mvp_list.insert(END, "  MSM: " + str(int(dpy.stats_tot_msm/dpy.stats_gms)))
+
+        mvp_list.grid()
+
+        #nba first team stats and ratings
+        names = Listbox(self, height=15, width=16)
+        names.grid(row=0,column=1)
+        names.insert(END, "ALL-NBA TEAM:")
+        ppg = Listbox(self, height=15, width=7)
+        ppg.grid(row=0,column=2)
+        ppg.insert(END, "PPG:")
+        fgp = Listbox(self, height=15, width=7)
+        fgp.grid(row=0,column=3)
+        fgp.insert(END, "FG%:")
+        fp3 = Listbox(self, height=15, width=7)
+        fp3.grid(row=0,column=4)
+        fp3.insert(END, "3ptFG%:")
+        reb = Listbox(self, height=15, width=7)
+        reb.grid(row=0,column=5)
+        reb.insert(END, "REB:")
+        ass = Listbox(self, height=15, width=7)
+        ass.grid(row=0,column=6)
+        ass.insert(END, "ASS:")
+        stl = Listbox(self, height=15, width=7)
+        stl.grid(row=0,column=7)
+        stl.insert(END, "STL:")
+        blk = Listbox(self, height=15, width=7)
+        blk.grid(row=0,column=8)
+        blk.insert(END, "BLK:")
+        fga = Listbox(self, height=15, width=7)
+        fga.grid(row=0,column=9)
+        fga.insert(END, "FGA:")
+        ga3 = Listbox(self, height=15, width=7)
+        ga3.grid(row=0,column=10)
+        ga3.insert(END, "3ptFGA:")
+        ofg = Listbox(self, height=15, width=7)
+        ofg.grid(row=0,column=11)
+        ofg.insert(END, "OpFG%:")
+        msm = Listbox(self, height=15, width=7)
+        msm.grid(row=0,column=12)
+        msm.insert(END, "MSM:")
+
+        for p in team: #stats
+            names.insert(END, str(p.name))
+            ppg.insert(END, "  " + str(int(p.ppg*10)/10))
+            fgp.insert(END, "  " + str(int(p.fgp*1000)/10)+"%")
+            fp3.insert(END, "  " + str(int(p.fp3*999)/10)+"%")
+            reb.insert(END, "  " + str(int(p.rpg*10)/10))
+            ass.insert(END, "  " + str(int(p.apg*10)/10))
+            stl.insert(END, "  " + str(int(p.spg*10)/10)) 
+            blk.insert(END, "  " + str(int(p.bpg*10)/10))
+            fga.insert(END, "  " + str(int(p.stats_tot_fga/p.stats_gms)))
+            ga3.insert(END, "  " + str(int(p.stats_tot_3ga/p.stats_gms)))
+            ofg.insert(END, "  " + str(int(1000*p.stats_tot_ofm/p.stats_tot_ofa)/10) + "%")
+            msm.insert(END, "  " + str(int(p.stats_tot_msm/p.stats_gms)))
+
+        names.insert(END, " ")
+        ppg.insert(END, "  ")
+        fgp.insert(END, "  ")
+        fp3.insert(END, "  ")
+        reb.insert(END, "  ")
+        ass.insert(END, "  ")
+        stl.insert(END, "  ") 
+        blk.insert(END, "  ")
+        fga.insert(END, "  ")
+        ga3.insert(END, "  ")
+        ofg.insert(END, "  ")
+        msm.insert(END, "  ")
+
+        names.insert(END, "FROM TEAMS:")
+        ppg.insert(END, "HGT:")
+        fgp.insert(END, "INS:")
+        fp3.insert(END, "MID:")
+        reb.insert(END, "OUT:")
+        ass.insert(END, "PAS:")
+        stl.insert(END, "STL:") 
+        blk.insert(END, "BLK:")
+        fga.insert(END, "IND:")
+        ga3.insert(END, "OTD:")
+        ofg.insert(END, "REB:")
+        msm.insert(END, "OVR:")
+
+        #all-nba teams from
+        for t in nba_first_team_from:
+            names.insert(END, str(t.wins) + "W " + str(t.name))
+
+        for p in team: #ratings
+            ppg.insert(END, "  " + str(p.height))
+            fgp.insert(END, "  " + str(p.int_s))
+            fp3.insert(END, "  " + str(p.mid_s))
+            reb.insert(END, "  " + str(p.out_s))
+            ass.insert(END, "  " + str(p.passing))
+            stl.insert(END, "  " + str(p.steal))
+            blk.insert(END, "  " + str(p.block))
+            fga.insert(END, "  " + str(p.int_d))
+            ga3.insert(END, "  " + str(p.out_d))
+            ofg.insert(END, "  " + str(p.rebounding))
+            msm.insert(END, "  " + str(int(100*p.overall/2500)))
+
 
 
 root = Tk()

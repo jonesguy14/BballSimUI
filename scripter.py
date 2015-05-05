@@ -95,6 +95,11 @@ def get_season_awards(teams):
 
 def intelligent_pass(who_poss, offense, defense, matches):
     sorted_matches = sorted(matches)
+
+    for i in range(len(sorted_matches)): #fix crash hopefully
+        sorted_matches[i] = abs(sorted_matches[i])
+        matches[i] = abs(matches[i])
+
     weighted = 1.4
     tot_m = matches[0]**weighted + matches[1]**weighted + matches[2]**weighted + matches[3]**weighted + matches[4]**weighted
     sel_target = random.randint(0, int(tot_m))
@@ -367,6 +372,7 @@ def take_shot(shooter, defender, defense, assister, prplay): #return points of s
         if prplay==1: print(defender.name,"has blocked",shooter.name,"!")
         shooter.stats_fga += 1
         defender.stats_blk += 1
+        defender.stats_ofa +=1
         return 0
     
     #select shot, use tendencies
@@ -400,11 +406,14 @@ def take_shot(shooter, defender, defense, assister, prplay): #return points of s
             shooter.stats_fgm += 1
             shooter.stats_3ga += 1
             shooter.stats_3gm += 1
+            defender.stats_ofa +=1
+            defender.stats_ofm +=1
             return 3
         else:
             if prplay==1: print(shooter.name, "misses from downtown!")
             shooter.stats_fga += 1
             shooter.stats_3ga += 1
+            defender.stats_ofa +=1
             return 0
     
     elif sel_shot >= out_ten and sel_shot < int_ten and mid_ten!=0: #midrange jumper selected
@@ -415,10 +424,13 @@ def take_shot(shooter, defender, defense, assister, prplay): #return points of s
             shooter.stats_pts += 2
             shooter.stats_fga += 1
             shooter.stats_fgm += 1
+            defender.stats_ofa +=1
+            defender.stats_ofm +=1
             return 2
         else:
             if prplay==1: print(shooter.name, "bricks the midrange jumper!")        
             shooter.stats_fga += 1
+            defender.stats_ofa +=1
             return 0
     
     else: #inside layup/dunk/etc
@@ -432,10 +444,13 @@ def take_shot(shooter, defender, defense, assister, prplay): #return points of s
             shooter.stats_pts += 2
             shooter.stats_fga += 1
             shooter.stats_fgm += 1
+            defender.stats_ofa +=1
+            defender.stats_ofm +=1
             return 2
         else:
             if prplay==1: print(shooter.name, "can't connect on the inside shot!") 
             shooter.stats_fga += 1
+            defender.stats_ofa +=1
             return 0
 
 def tip_off(home, away, prplay):

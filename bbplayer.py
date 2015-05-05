@@ -13,6 +13,8 @@ class bbplayer:
     stats_reb = 0
     stats_stl = 0
     stats_blk = 0
+    stats_ofa = 0
+    stats_ofm = 0
     
     stats_gms = 0
     stats_tot_pts = 0
@@ -25,6 +27,8 @@ class bbplayer:
     stats_tot_stl = 0
     stats_tot_blk = 0
     stats_tot_msm = 0
+    stats_tot_ofa = 0
+    stats_tot_ofm = 0
     
     def __init__(self, name, pref_pos, height, weight, speed, age, int_s, mid_s, out_s, passing, handling, steal, block, int_d, out_d, rebounding):
         self.name       = name
@@ -65,6 +69,12 @@ class bbplayer:
         self.stats_stl = 0
         self.stats_tot_blk += self.stats_blk
         self.stats_blk = 0
+        self.stats_tot_blk += self.stats_blk
+        self.stats_blk = 0
+        self.stats_tot_ofa += self.stats_ofa
+        self.stats_ofa = 0
+        self.stats_tot_ofm += self.stats_ofm
+        self.stats_ofm = 0
     '''
         for x in stats_array:
             x[1] += x[0]
@@ -83,6 +93,8 @@ class bbplayer:
         self.stats_tot_stl = 0
         self.stats_tot_blk = 0
         self.stats_tot_msm = 0
+        self.stats_tot_ofa = 0
+        self.stats_tot_ofm = 0
     
     @property
     def overall(self):
