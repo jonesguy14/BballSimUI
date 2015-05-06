@@ -84,6 +84,7 @@ def get_season_awards(teams):
                 mvp_score = mvp_calc
                 mvp = p
                 mvp_team = team
+                print("found new MVP: " + p.name + " from " + team.name + " with score of " + str(int(mvp_score)))
             #DPOTY
             dpy_calc = p.stats_tot_reb*0.1 + p.stats_tot_stl + p.stats_tot_blk + team.wins*5
             if dpy_calc > dpy_score:

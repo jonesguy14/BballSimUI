@@ -16,6 +16,25 @@ class App(Frame):
 
         drafter = Drafter()
         draft_players = drafter.draft_generate(90)
+        #StanSmall = bbplayer("Smally", 3, 80, 200, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, ["k", "k", "k", "k", "k"])
+        #draft_players.append(StanSmall)
+
+        #sort draft_players by overall for easier drafting
+        player_sort_ovr = []
+        for p in draft_players:
+            player_sort_ovr.append(p.overall)
+        player_sort_ovr.sort(reverse=True)
+
+        final_sort = []
+        pool = draft_players
+        for o in player_sort_ovr:
+            for p in pool:
+                if p.overall == o:
+                    final_sort.append(p)
+                    pool.remove(p)
+                    break
+
+
 
         num_opponents = 15
         player_pick_num = 1
@@ -26,7 +45,7 @@ class App(Frame):
         player_team = team.empty()
         player_team.name = "PLAYER TEAM"
 
-        self.draft_buttons(draft_players, player_team, opponents_list, 1)
+        self.draft_buttons(final_sort, player_team, opponents_list, 1)
 
 
     def draft_player(self, player, player_list, opponents_list, team, dround):
@@ -41,38 +60,46 @@ class App(Frame):
         dlabel = Label(self, text="Draft Round "+str(dround))
         dlabel.grid()
 
-        draft_list = Listbox(self, height=35, width=50)
+        scrollbar = Scrollbar(self)
+        #scrollbar.pack(side=RIGHT, fill=Y)
+
+        draft_list = Listbox(self, height=35, width=45, yscrollcommand=scrollbar.set)
         curr_player = Listbox(self, height=15, width=20)
         draft_list.grid(row=1,column=0)
-        curr_player.grid(row=1,column=1)
+        curr_player.grid(row=1,column=2)
         for pnum in range(len(player_list)):
             player = player_list[pnum]
-            draft_list.insert(END, "POS: "+str(player.pref_pos)+" OVR: "+str(int(100*player.overall/2500))+" NAME: "+str(player.name) + 
-                                   " ATTS: " + player.atts[0]+", "+player.atts[1]+", "+ player.atts[2]+", "+ player.atts[3]+", "+ player.atts[4] )
+            draft_list.insert(END, "#"+str(pnum+1)+" OVR: "+str(int(100*player.overall/2500))+" POS: "+str(player.pref_pos)+" NAME: "+str(player.name)) 
+            draft_list.insert(END, "   " + player.atts[0]+", "+player.atts[1]+", "+ player.atts[2]+",")
+            draft_list.insert(END, "   " + player.atts[3]+", "+player.atts[4])
+            #+", "+player.atts[1]+", "+ player.atts[2]+", "+ player.atts[3]+", "+ player.atts[4] )
+
+        scrollbar.grid(row=1, column=1, sticky='nsew')
+        scrollbar.config(command=draft_list.yview)
 
         self.button = Button(self,
                         text = "Scout Selected Player",
                         command = lambda: self.update_scout(player_list, curr_player, draft_list)
                       )
-        self.button.grid(row=1,column=2)
-
-        self.button = Button(self,
-                        text = "Draft Selected Player",
-                        command = lambda pnum=pnum: self.draft_player(player_list[draft_list.index(ACTIVE)], player_list, opponents_list, player_team, dround)
-                      )
         self.button.grid(row=1,column=3)
 
+        self.button = Button(self,
+                        text = "Draft Selected Player", fg="green",
+                        command = lambda pnum=pnum: self.draft_player(player_list[int(draft_list.index(ACTIVE)/3)], player_list, opponents_list, player_team, dround)
+                      )
+        self.button.grid(row=1,column=4)
+
         cteam = Listbox(self, height=15, width=25)
-        cteam.grid(row=1, column=4)
+        cteam.grid(row=1, column=5)
         for p in player_team.bench_array:
             cteam.insert(END, str(p.pref_pos) + " " + p.name + " OVR: " + str(int(100*p.overall/2500)))
         
         
 
     def update_scout(self, player_list, curr_player, draft_list):
-        curr_player.grid(row=1,column=1)
+        curr_player.grid(row=1,column=2)
         curr_player.delete(0, END)
-        p = player_list[draft_list.index(ACTIVE)]
+        p = player_list[int(draft_list.index(ACTIVE)/3)]
         curr_player.insert(END, str(p.pref_pos) + " " + str( p.name ) )
         curr_player.insert(END, "   HT: "+str(p.height))
         curr_player.insert(END, "   WT: "+str(p.weight))

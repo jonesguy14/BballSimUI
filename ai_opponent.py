@@ -29,7 +29,7 @@ class ai_opponent:
             for p in player_list:
                 if p.overall == overalls[len(player_list)-top]:
                     if self.ai_team.player_array[p.pref_pos-1] == None:
-                        print(self.name, "has selected", p.name, p.pref_pos)
+                        print(self.name, "has selected", p.name, p.pref_pos, " ovr:", p.overall)
                         made_selection = True
                         return draft_position
                     else: #don't pick top guy since we already have a guy in that position 
