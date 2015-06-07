@@ -95,7 +95,22 @@ def get_season_awards(teams):
     return mvp, mvp_team, mvp_score, dpy, dpy_team, dpy_score, nba_first_team, nba_first_team_from, nba_first_team_scores
 
 def intelligent_pass(who_poss, offense, defense, matches):
-    sorted_matches = sorted(matches)
+    tot_real_fga = offense.pointg.real_fga + offense.shootg.real_fga + offense.smallf.real_fga + offense.powerf.real_fga + offense.center.real_fga
+
+    who_pass = random.random()*tot_real_fga
+
+    if who_pass < offense.pointg.real_fga: #and offense.pointg.real_fga!=who_poss.real_fga:
+        return offense.pointg
+    elif who_pass < (offense.pointg.real_fga + offense.shootg.real_fga): #and offense.shootg.real_fga!=who_poss.real_fga:
+        return offense.shootg
+    elif who_pass < (offense.pointg.real_fga + offense.shootg.real_fga + offense.smallf.real_fga): #and offense.smallf.real_fga!=who_poss.real_fga:
+        return offense.smallf
+    elif who_pass < (offense.pointg.real_fga + offense.shootg.real_fga + offense.smallf.real_fga + offense.powerf.real_fga): #and offense.powerf.real_fga!=who_poss.real_fga:
+        return offense.powerf
+    else:
+        return offense.center
+
+    """sorted_matches = sorted(matches)
 
     for i in range(len(sorted_matches)): #fix crash hopefully
         sorted_matches[i] = abs(sorted_matches[i])
@@ -124,7 +139,7 @@ def intelligent_pass(who_poss, offense, defense, matches):
     elif target == matches[3]: #pf target of pass
         return offense.powerf
     elif target == matches[4]: #cn target of pass
-        return offense.center
+        return offense.center"""
 
 def playoffs(teams_arr):
     #round1
@@ -376,7 +391,7 @@ def take_shot(shooter, defender, defense, assister, prplay): #return points of s
         defender.stats_ofa +=1
         return 0
     
-    #select shot, use tendencies
+    """#select shot, use tendencies
     out_ten = 0
     mid_ten = 0
     int_ten = 0
@@ -395,10 +410,13 @@ def take_shot(shooter, defender, defense, assister, prplay): #return points of s
     if out_ten<0: out_ten=0
     if mid_ten<0: mid_ten=0
     if int_ten<0: int_ten=0
+
     tot_ten = out_ten + mid_ten + int_ten
-    sel_shot = random.randint(0, int(tot_ten))
+    sel_shot = random.randint(0, int(tot_ten))"""
+
+    sel_shot = random.random()
     
-    if sel_shot < out_ten and out_ten!=0: #3point shot selected
+    if sel_shot < shooter.out_t and shooter.out_t!=0: #3point shot selected
         chance = 22 + (shooter.out_s)/3 + ass_bonus - (defender.out_d)/5 #70 norm multy
         if chance > random.random()*100: #chance > 60:
             #made it!
@@ -417,7 +435,7 @@ def take_shot(shooter, defender, defense, assister, prplay): #return points of s
             defender.stats_ofa +=1
             return 0
     
-    elif sel_shot >= out_ten and sel_shot < int_ten and mid_ten!=0: #midrange jumper selected
+    elif sel_shot < shooter.mid_t and shooter.mid_t!=0: #midrange jumper selected
         def_mid_d = defender.out_d*0.5 + 0.5*defender.int_d
         chance = 30 + (shooter.mid_s)/3 + ass_bonus - (def_mid_d)/5 #80 norm multy
         if chance > random.random()*100:

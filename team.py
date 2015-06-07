@@ -147,3 +147,6 @@ class team:
                 self.bench_array[i - 5] = player_list[i]
         else:
             raise KeyError("ur dumb")
+
+    def fudge_num_games(self):
+        self.wins = int( 82/60 * self.wins )

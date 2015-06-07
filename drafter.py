@@ -3,6 +3,58 @@ import math
 from bbplayer import *
 
 class Drafter:
+
+    def draft_generate_from_file(self):
+        player_list = []
+        f = open("player_stats.txt", "r")
+        for line in f:
+            stats = line.split(" ")
+
+            if stats[2] == "PG":
+                pref_pos = 1
+            elif stats[2] == "SG":
+                pref_pos = 2 
+            elif stats[2] == "SF":
+                pref_pos = 3 
+            elif stats[2] == "PF":
+                pref_pos = 4 
+            elif stats[2] == "C":
+                pref_pos = 5 
+            
+            #stats[26] is ppg
+
+            height = 78
+            weight = 180
+            speed = 75
+            age = 25
+            int_s = int( 50 + 50 * float(stats[8]) + 3 * float(stats[6]) )
+            print(stats[0]+stats[1])
+            print(stats[9])
+            print(stats[11])
+            if float(stats[9])>0.3:
+                out_s = int( 50 + 70 * float(stats[11]) + 6 * float(stats[9]) )
+            else:
+                out_s = 40
+            mid_s = int( (int_s+out_s)/2.7 * (0.45 + float(stats[17])) )
+            passing = 60 + int( 10 * float(stats[21]) / float(stats[24]) + float(stats[21]) )
+            handling = 75
+            steal = int( 50 + 20 * float(stats[22]) )
+            block = int( 50 + 20 * float(stats[23]) )
+            rebounding = 50 + int( float(stats[20])*5 )
+            int_d = int( (block + rebounding)/2 )
+            out_d = int( (steal + out_s + passing)/3 )
+            ins_t = float(stats[28])+float(stats[29]) #% of shots from within 10 ft
+            mid_t = float(stats[30])+float(stats[31]) #% of mid range shots
+            out_t = float(stats[32]) #%of 3pt shots
+            real_fga = float(stats[7])
+            name = stats[0] + " " + stats[1] + " " + stats[2]
+            gained_attributes = []
+            gen_player = bbplayer(name, pref_pos, height, weight, speed, age, int_s, mid_s, out_s, passing, handling, steal, block, int_d, out_d, rebounding, ins_t, mid_t, out_t, real_fga, gained_attributes)
+            player_list.append(gen_player)
+
+        return player_list
+
+
     
     def draft_generate(self, num_players):
         player_list = []

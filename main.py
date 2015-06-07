@@ -15,7 +15,9 @@ class App(Frame):
         self.grid()
 
         drafter = Drafter()
-        draft_players = drafter.draft_generate(90)
+        draft_players = drafter.draft_generate_from_file()
+        self.play_real_season(draft_players)
+        """
         #StanSmall = bbplayer("Smally", 3, 80, 200, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, ["k", "k", "k", "k", "k"])
         #draft_players.append(StanSmall)
 
@@ -45,7 +47,7 @@ class App(Frame):
         player_team = team.empty()
         player_team.name = "PLAYER TEAM"
 
-        self.draft_buttons(final_sort, player_team, opponents_list, 1)
+        self.draft_buttons(final_sort, player_team, opponents_list, 1)"""
 
 
     def draft_player(self, player, player_list, opponents_list, team, dround):
@@ -70,8 +72,8 @@ class App(Frame):
         for pnum in range(len(player_list)):
             player = player_list[pnum]
             draft_list.insert(END, "#"+str(pnum+1)+" OVR: "+str(int(100*player.overall/2500))+" POS: "+str(player.pref_pos)+" NAME: "+str(player.name)) 
-            draft_list.insert(END, "   " + player.atts[0]+", "+player.atts[1]+", "+ player.atts[2]+",")
-            draft_list.insert(END, "   " + player.atts[3]+", "+player.atts[4])
+            #draft_list.insert(END, "   " + player.atts[0]+", "+player.atts[1]+", "+ player.atts[2]+",")
+            #draft_list.insert(END, "   " + player.atts[3]+", "+player.atts[4])
             #+", "+player.atts[1]+", "+ player.atts[2]+", "+ player.atts[3]+", "+ player.atts[4] )
 
         scrollbar.grid(row=1, column=1, sticky='nsew')
@@ -85,7 +87,7 @@ class App(Frame):
 
         self.button = Button(self,
                         text = "Draft Selected Player", fg="green",
-                        command = lambda pnum=pnum: self.draft_player(player_list[int(draft_list.index(ACTIVE)/3)], player_list, opponents_list, player_team, dround)
+                        command = lambda pnum=pnum: self.draft_player(player_list[int(draft_list.index(ACTIVE))], player_list, opponents_list, player_team, dround)
                       )
         self.button.grid(row=1,column=4)
 
@@ -99,7 +101,7 @@ class App(Frame):
     def update_scout(self, player_list, curr_player, draft_list):
         curr_player.grid(row=1,column=2)
         curr_player.delete(0, END)
-        p = player_list[int(draft_list.index(ACTIVE)/3)]
+        p = player_list[int(draft_list.index(ACTIVE))]
         curr_player.insert(END, str(p.pref_pos) + " " + str( p.name ) )
         curr_player.insert(END, "   HT: "+str(p.height))
         curr_player.insert(END, "   WT: "+str(p.weight))
@@ -196,13 +198,35 @@ class App(Frame):
 
         self.review_season(teams_arr)
 
+    def play_real_season(self, player_list):
+        league = []
+        team_names = ["ATL","BOS","BKN","CHA","CHI","CLE","DAL","DEN","DET","GSW","HOU","IND","LAC","LAL","MEM","MIA","MIL","MIN","NOL","NYK","OKC","ORL","PHI","PHX","POR","SAC","SAN","TOR","UTA","WSH"]
+        for p in range(30):
+            new_team = team(team_names[p], player_list[p*5], player_list[p*5+1], player_list[p*5+2], player_list[p*5+3], player_list[p*5+4])
+            league.append(new_team)
+
+        teams_arr = league
+        itr = 0
+        while itr < len(teams_arr):
+            ttr = itr + 1
+            while ttr < len(teams_arr):
+                playgame(teams_arr[itr], teams_arr[ttr], 0, 0).wins += 1
+                #playgame(teams_arr[ttr], teams_arr[itr], 0, 0).wins += 1
+                #playgame(teams_arr[itr], teams_arr[ttr], 0, 0).wins += 1
+                playgame(teams_arr[ttr], teams_arr[itr], 0, 0).wins += 1
+                ttr += 1
+            itr += 1
+
+        self.review_season(teams_arr)
+
     def review_season(self, teams_arr):
         label = Label(self, text="Season Results:")
         label.grid()
 
         team_recs = Listbox(self, height = 20, width = 30)
         for t in teams_arr:
-            team_recs.insert(END, str(t.wins) + "-" + str(60-t.wins) + " : " + str(t.name) )
+            t.fudge_num_games()
+            team_recs.insert(END, str(t.wins) + "-" + str(82-t.wins) + " : " + str(t.name) )
         team_recs.grid()
 
         examine = Button( self, text="Examine Team", command = lambda: self.examine_team(teams_arr[team_recs.index(ACTIVE)], teams_arr) )
@@ -220,7 +244,7 @@ class App(Frame):
 
         team_recs = Listbox(self, height = 20, width = 30)
         for t in teams_arr:
-            team_recs.insert(END, str(t.wins) + "-" + str(60-t.wins) + " : " + str(t.name) )
+            team_recs.insert(END, str(t.wins) + "-" + str(82-t.wins) + " : " + str(t.name) )
         team_recs.grid()
 
         examine = Button( self, text="Examine Team", command = lambda: self.examine_team(teams_arr[team_recs.index(ACTIVE)], teams_arr) )
@@ -357,7 +381,7 @@ class App(Frame):
         #mvp and dpoy list
         mvp_list = Listbox(self, height = 28, width = 27)
         mvp_list.insert(END, "MVP: "+str(mvp.name))
-        mvp_list.insert(END, "from " + str(mvp_team.name) + " (" + str(mvp_team.wins) + "-" + str(60-mvp_team.wins) + ")")
+        mvp_list.insert(END, "from " + str(mvp_team.name) + " (" + str(mvp_team.wins) + "-" + str(82-mvp_team.wins) + ")")
         mvp_list.insert(END, "  PPG: " + str(int(mvp.ppg*10)/10))
         mvp_list.insert(END, "  FGP: " + str(int(mvp.fgp*1000)/10)+"%")
         mvp_list.insert(END, "  3GP: " + str(int(mvp.fp3*999)/10)+"%")
@@ -372,7 +396,7 @@ class App(Frame):
 
         mvp_list.insert(END, " ")
         mvp_list.insert(END, "DPOY: "+str(dpy.name))
-        mvp_list.insert(END, "from " + str(dpy_team.name) + " (" + str(dpy_team.wins) + "-" + str(60-dpy_team.wins) + ")")
+        mvp_list.insert(END, "from " + str(dpy_team.name) + " (" + str(dpy_team.wins) + "-" + str(82-dpy_team.wins) + ")")
         mvp_list.insert(END, "  PPG: " + str(int(dpy.ppg*10)/10))
         mvp_list.insert(END, "  FGP: " + str(int(dpy.fgp*1000)/10)+"%")
         mvp_list.insert(END, "  3GP: " + str(int(dpy.fp3*999)/10)+"%")

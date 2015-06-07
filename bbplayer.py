@@ -30,7 +30,7 @@ class bbplayer:
     stats_tot_ofa = 0
     stats_tot_ofm = 0
     
-    def __init__(self, name, pref_pos, height, weight, speed, age, int_s, mid_s, out_s, passing, handling, steal, block, int_d, out_d, rebounding, atts):
+    def __init__(self, name, pref_pos, height, weight, speed, age, int_s, mid_s, out_s, passing, handling, steal, block, int_d, out_d, rebounding, ins_t, mid_t, out_t, real_fga, atts):
         self.name       = name
         self.height     = height
         self.pref_pos   = pref_pos
@@ -49,6 +49,10 @@ class bbplayer:
         self.rebounding = rebounding
         self.ovrshoot   = (int_s + mid_s + out_s) / 3
         self.atts       = atts
+        self.ins_t      = ins_t
+        self.mid_t      = mid_t
+        self.out_t      = out_t
+        self.real_fga   = real_fga
 
     def game_reset_pstats(self):
         self.stats_gms += 1
