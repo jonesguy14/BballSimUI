@@ -46,8 +46,8 @@ def find_rebounder(team): #who shall receive the rebounding blessing?
     
 def get_ball_carrier(team):
     smfbc = random.random()*team.smallf.passing
-    shgbc = random.random()*team.shootg.passing*1.1
-    ptgbc = random.random()*team.pointg.passing*1.2
+    shgbc = random.random()*team.shootg.passing
+    ptgbc = random.random()*team.pointg.passing
     listbc = [smfbc, shgbc, ptgbc]
     listbc.sort()
     if listbc[2]==smfbc:
@@ -71,7 +71,7 @@ def get_season_awards(teams):
     for team in teams:
         #all nba first team
         for i in range(5):
-            team_calc = team.player_array[i].stats_tot_pts*2 + team.player_array[i].stats_tot_ass + team.player_array[i].stats_tot_reb*0.8 + team.player_array[i].stats_tot_stl*1.2 + team.player_array[i].stats_tot_blk*1.2 + team.wins*2
+            team_calc = team.player_array[i].stats_tot_pts*2 + team.player_array[i].stats_tot_ass*1.3 + team.player_array[i].stats_tot_reb*0.8 + team.player_array[i].stats_tot_stl*1.2 + team.player_array[i].stats_tot_blk*1.2 + team.wins*2
             if team_calc > nba_first_team_scores[i]:
                 nba_first_team_scores[i] = team_calc
                 nba_first_team[i] = team.player_array[i]
@@ -79,7 +79,7 @@ def get_season_awards(teams):
             
         for p in team.player_array:
             #MVP
-            mvp_calc = p.stats_tot_pts*2 + p.stats_tot_ass*1.2 + p.stats_tot_reb*0.8 + p.stats_tot_stl*1.2 + p.stats_tot_blk*1.2 + team.wins*30
+            mvp_calc = p.stats_tot_pts*2 + p.stats_tot_ass*1.3 + p.stats_tot_reb*0.8 + p.stats_tot_stl*1.2 + p.stats_tot_blk*1.2 + team.wins*30
             if mvp_calc > mvp_score:
                 mvp_score = mvp_calc
                 mvp = p
@@ -267,12 +267,12 @@ def playgame(home, away, prplay, prbox): #home team, away team, print play-by-pl
             hscore += run_play(home, away, matches_h, prplay)
             poss_away = 1
             poss_home = 0
-            gametime += 24 * random.random() / hspeed
+            gametime += 5 + 19 * random.random()
         elif poss_away:
             ascore += run_play(away, home, matches_a, prplay)
             poss_away = 0
             poss_home = 1
-            gametime += 24 * random.random() / aspeed
+            gametime += 5 + 19 * random.random()
         if gametime > max_gametime:
             gametime = max_gametime
             if hscore != ascore:
@@ -302,14 +302,20 @@ def playgame(home, away, prplay, prbox): #home team, away team, print play-by-pl
 
 def pot_steal(poss, stlr): #see if the pass is stolen, return 1 if it is
     if random.random() < 0.1: #only 10% of passes are "stealable"
-        chance = random.random() * (stlr.steal - poss.handling*0.5)
-        if chance > 30 or random.random() < 0.1:
+        chance = random.random() * (stlr.steal ** 0.25)
+        if chance > 1.95 or random.random() < 0.1:
             #stolen!
             return 1
         else: return 0
     else: return 0
 
 def run_play(offense, defense, matches, prplay): #take it possession at time yo
+
+    off_tot_outd = offense.pointg.out_d + offense.shootg.out_d + offense.smallf.out_d + offense.powerf.out_d + offense.center.out_d
+    def_tot_outd = defense.pointg.out_d + defense.shootg.out_d + defense.smallf.out_d + defense.powerf.out_d + defense.center.out_d
+
+    fastbreak_possibility = off_tot_outd - def_tot_outd
+
     if prplay==1: print(offense.name, "have the ball.")
     passes = 0
     off_poss = 1
@@ -348,6 +354,21 @@ def run_play(offense, defense, matches, prplay): #take it possession at time yo
                 who_def  = defense.powerf
             if who_poss == offense.center:
                 who_def  = defense.center
+        elif ( fastbreak_possibility * random.random() > 60 ):
+            #fastbreak to punish big lineups
+            points = 2
+            who_poss.stats_pts += 2
+            who_poss.stats_fga += 1
+            who_poss.stats_fgm += 1
+            who_def.stats_ofa +=1
+            who_def.stats_ofm +=1
+            if assister == who_poss:
+                if prplay==1: print(who_poss.name, "made a 2pt fastbreak dunk!")
+                return points
+            else:
+                if ((assister.passing/14)**2.4)*random.random() > 20: assister.stats_ass += 1
+                if prplay==1: print(who_poss.name, "made a 2pt fastbreak lay-up with an assist from", assister.name)
+                return points
         else:
             #shoot
             points = take_shot(who_poss, who_def, defense, assister, prplay)
@@ -357,14 +378,16 @@ def run_play(offense, defense, matches, prplay): #take it possession at time yo
                     if prplay==1: print(who_poss.name, "made a", points, "pt shot")
                     return points
                 else:
-                    if assister.passing*random.random() + 50 > 65: assister.stats_ass += 1
+                    if ((assister.passing/14)**2.4)*random.random() > 20: assister.stats_ass += 1
                     if prplay==1: print(who_poss.name, "made a", points, "pt shot with an assist from", assister.name)
                     return points
             else:
                 #rebounding, defenders have 3:1 advantage
                 #weighted rebounding advantage calculator, maybe add height adv too l8r
-                reb_adv = (defense.center.rebounding - offense.center.rebounding) + (defense.powerf.rebounding - offense.powerf.rebounding)+ (defense.smallf.rebounding - offense.smallf.rebounding)*0.8 + (defense.shootg.rebounding - offense.shootg.rebounding)*0.7 + (defense.pointg.rebounding - offense.pointg.rebounding)*0.5
-                reb_adv *= 0.2
+                reb_advs = [(defense.center.rebounding - offense.center.rebounding) , (defense.powerf.rebounding - offense.powerf.rebounding) , (defense.smallf.rebounding - offense.smallf.rebounding)*0.8 , (defense.shootg.rebounding - offense.shootg.rebounding)*0.7 + (defense.pointg.rebounding - offense.pointg.rebounding)*0.5]
+                #reb_adv = (defense.center.rebounding - offense.center.rebounding) + (defense.powerf.rebounding - offense.powerf.rebounding)+ (defense.smallf.rebounding - offense.smallf.rebounding)*0.8 + (defense.shootg.rebounding - offense.shootg.rebounding)*0.7 + (defense.pointg.rebounding - offense.pointg.rebounding)*0.5
+                reb_adv = reb_advs[ random.randint(0,3) ] + reb_advs[ random.randint(0,3) ]
+                reb_adv *= 0.175
                 if (random.random()*100 + reb_adv) > 25: #defensive reb
                     rebounder = find_rebounder(defense)
                     if prplay==1: print(rebounder.name,"grabs the defensive rebound!")
@@ -380,16 +403,7 @@ def take_shot(shooter, defender, defense, assister, prplay): #return points of s
     #give assist bonus for having a good passer pass to you
     ass_bonus = 0
     if assister != shooter:
-        ass_bonus = (assister.passing - 60) / 5
-    
-    #block?
-    if random.random() * (defender.block + (defender.height - shooter.height)) > 80 or random.random() < 0.005:
-        #NOT IN MY HOUSE MOFO
-        if prplay==1: print(defender.name,"has blocked",shooter.name,"!")
-        shooter.stats_fga += 1
-        defender.stats_blk += 1
-        defender.stats_ofa +=1
-        return 0
+        ass_bonus = (assister.passing - 75) / 5
     
     """#select shot, use tendencies
     out_ten = 0
@@ -415,8 +429,17 @@ def take_shot(shooter, defender, defense, assister, prplay): #return points of s
     sel_shot = random.randint(0, int(tot_ten))"""
 
     sel_shot = random.random()
+
+    intel_out_t = shooter.out_t
+    intel_mid_t = shooter.mid_t
+    mism_mid = shooter.mid_s - (defender.out_d*0.5 + 0.5*defender.int_d)
+    if mism_mid > 30:
+        intel_mid_t += mism_mid/7
+    mism_out = shooter.out_s - defender.out_d
+    if mism_out > 30 and defender.out_d <= 70:
+        intel_out_t += mism_out/7
     
-    if sel_shot < shooter.out_t and shooter.out_t!=0: #3point shot selected
+    if sel_shot < intel_out_t and intel_out_t>=0 and shooter.out_s>40: #3point shot selected
         chance = 22 + (shooter.out_s)/3 + ass_bonus - (defender.out_d)/5 #70 norm multy
         if chance > random.random()*100: #chance > 60:
             #made it!
@@ -435,7 +458,7 @@ def take_shot(shooter, defender, defense, assister, prplay): #return points of s
             defender.stats_ofa +=1
             return 0
     
-    elif sel_shot < shooter.mid_t and shooter.mid_t!=0: #midrange jumper selected
+    elif sel_shot < intel_mid_t and intel_mid_t>=0: #midrange jumper selected
         def_mid_d = defender.out_d*0.5 + 0.5*defender.int_d
         chance = 30 + (shooter.mid_s)/3 + ass_bonus - (def_mid_d)/5 #80 norm multy
         if chance > random.random()*100:
@@ -453,7 +476,17 @@ def take_shot(shooter, defender, defense, assister, prplay): #return points of s
             return 0
     
     else: #inside layup/dunk/etc
-        chance = 40 + (shooter.int_s)/3 + ass_bonus - (defender.int_d)/5
+
+        #block?
+        if random.random() * (defender.block ** 0.25) > 2.75 or random.random() < 0.02:
+            #NOT IN MY HOUSE MOFO
+            if prplay==1: print(defender.name,"has blocked",shooter.name,"!")
+            shooter.stats_fga += 1
+            defender.stats_blk += 1
+            defender.stats_ofa +=1
+            return 0
+
+        chance = 35 + (shooter.int_s)/3 + ass_bonus - (defender.int_d/2 + defense.powerf.int_d/4 + defense.center.int_d/4)/5
         if chance > random.random()*100:
             #made it!
             if random.random() < 0.3:
@@ -463,8 +496,8 @@ def take_shot(shooter, defender, defense, assister, prplay): #return points of s
             shooter.stats_pts += 2
             shooter.stats_fga += 1
             shooter.stats_fgm += 1
-            defender.stats_ofa +=1
-            defender.stats_ofm +=1
+            defender.stats_ofa += 1
+            defender.stats_ofm += 1
             return 2
         else:
             if prplay==1: print(shooter.name, "can't connect on the inside shot!") 

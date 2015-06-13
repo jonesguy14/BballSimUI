@@ -207,16 +207,65 @@ class App(Frame):
 
         teams_arr = league
         itr = 0
+        gp = 0
         while itr < len(teams_arr):
             ttr = itr + 1
             while ttr < len(teams_arr):
                 playgame(teams_arr[itr], teams_arr[ttr], 0, 0).wins += 1
-                #playgame(teams_arr[ttr], teams_arr[itr], 0, 0).wins += 1
-                #playgame(teams_arr[itr], teams_arr[ttr], 0, 0).wins += 1
+                playgame(teams_arr[ttr], teams_arr[itr], 0, 0).wins += 1
+                playgame(teams_arr[itr], teams_arr[ttr], 0, 0).wins += 1
                 playgame(teams_arr[ttr], teams_arr[itr], 0, 0).wins += 1
                 ttr += 1
+                gp += 4
+                print( str(gp) + " games played;\n")
             itr += 1
+        print("done simming")
 
+        tot_avg_ppg = 0
+        tot_avg_fgp = 0     
+        tot_avg_3fp = 0    
+        tot_avg_rpg = 0
+        tot_avg_apg = 0
+        tot_avg_spg = 0
+        tot_avg_bpg = 0
+        tot_avg_fga = 0
+        tot_avg_3ga = 0
+        tot_avg_ofp = 0
+
+        for teaml in teams_arr:
+            tot_avg_ppg += (teaml.pointg.ppg + teaml.shootg.ppg + teaml.smallf.ppg + teaml.powerf.ppg + teaml.center.ppg)/30
+            tot_avg_fgp += ((teaml.pointg.stats_tot_fgm + teaml.shootg.stats_tot_fgm+ teaml.smallf.stats_tot_fgm + teaml.powerf.stats_tot_fgm +
+                            teaml.center.stats_tot_fgm)/(teaml.pointg.stats_tot_fga + teaml.shootg.stats_tot_fga+ teaml.smallf.stats_tot_fga + teaml.powerf.stats_tot_fga + teaml.center.stats_tot_fga))/30
+            tot_avg_3fp += ((teaml.pointg.stats_tot_3gm + teaml.shootg.stats_tot_3gm+ teaml.smallf.stats_tot_3gm + teaml.powerf.stats_tot_3gm + 
+                            teaml.center.stats_tot_3gm)/(teaml.pointg.stats_tot_3ga + teaml.shootg.stats_tot_3ga+ teaml.smallf.stats_tot_3ga + teaml.powerf.stats_tot_3ga + teaml.center.stats_tot_3ga + 1))/30 #so no div 0
+            tot_avg_rpg += (teaml.pointg.rpg + teaml.shootg.rpg + teaml.smallf.rpg + teaml.powerf.rpg + teaml.center.rpg)/30
+            tot_avg_apg += (teaml.pointg.apg + teaml.shootg.apg + teaml.smallf.apg + teaml.powerf.apg + teaml.center.apg)/30
+            tot_avg_spg += (teaml.pointg.spg + teaml.shootg.spg + teaml.smallf.spg + teaml.powerf.spg + teaml.center.spg)/30
+            tot_avg_bpg += (teaml.pointg.bpg + teaml.shootg.bpg + teaml.smallf.bpg + teaml.powerf.bpg + teaml.center.bpg)/30
+            tot_avg_fga += ((teaml.pointg.stats_tot_fga + teaml.shootg.stats_tot_fga+ teaml.smallf.stats_tot_fga + teaml.powerf.stats_tot_fga + teaml.center.stats_tot_fga)/teaml.pointg.stats_gms)/30
+            tot_avg_3ga += ((teaml.pointg.stats_tot_3ga + teaml.shootg.stats_tot_3ga+ teaml.smallf.stats_tot_3ga + teaml.powerf.stats_tot_3ga + teaml.center.stats_tot_3ga)/teaml.pointg.stats_gms)/30
+            tot_avg_ofp += ((teaml.pointg.stats_tot_ofm + teaml.shootg.stats_tot_ofm+ teaml.smallf.stats_tot_ofm + teaml.powerf.stats_tot_ofm +
+                            teaml.center.stats_tot_ofm)/(teaml.pointg.stats_tot_ofa + teaml.shootg.stats_tot_ofa + teaml.smallf.stats_tot_ofa + teaml.powerf.stats_tot_ofa + teaml.center.stats_tot_ofa))/30
+
+        print("TOTAL AVERAGES PER TEAM:")
+        print("PPG: "+str(int(tot_avg_ppg*10)/10)+" FGP: "+str(int(tot_avg_fgp*1000)/10)+" 3FP: "+str(int(tot_avg_3fp*1000)/10)+" REB: "+str(int(tot_avg_rpg*10)/10)+" APG: "+str(int(tot_avg_apg*10)/10)+" STL: "+
+               str(int(tot_avg_spg*10)/10)+" BLK: "+str(int(tot_avg_bpg*10)/10)+" FGA: "+str(int(tot_avg_fga*10)/10)+" 3GA: "+str(int(tot_avg_3ga*10)/10))
+
+        team_sort_wins = []
+        for t in teams_arr:
+            team_sort_wins.append(t.wins)
+        team_sort_wins.sort(reverse=True)
+
+        final_sort = []
+        pool = teams_arr
+        for o in team_sort_wins:
+            for tt in pool:
+                if tt.wins == o:
+                    final_sort.append(tt)
+                    pool.remove(tt)
+                    break
+
+        teams_arr = final_sort
         self.review_season(teams_arr)
 
     def review_season(self, teams_arr):

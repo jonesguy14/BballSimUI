@@ -22,26 +22,28 @@ class Drafter:
                 pref_pos = 5 
             
             #stats[26] is ppg
+            #39 is allnba
+            #40 is alldef
 
             height = 78
             weight = 180
             speed = 75
             age = 25
-            int_s = int( 50 + 50 * float(stats[8]) + 3 * float(stats[6]) )
+            int_s = int( 50 + 65 * float(stats[8]) + 3 * float(stats[6]) )
             print(stats[0]+stats[1])
             print(stats[9])
             print(stats[11])
             if float(stats[9])>0.3:
                 out_s = int( 50 + 70 * float(stats[11]) + 6 * float(stats[9]) )
             else:
-                out_s = 40
+                out_s = 30
             mid_s = int( (int_s+out_s)/2.7 * (0.45 + float(stats[17])) )
             passing = 60 + int( 10 * float(stats[21]) / float(stats[24]) + float(stats[21]) )
             handling = 75
             steal = int( 50 + 20 * float(stats[22]) )
             block = int( 50 + 20 * float(stats[23]) )
             rebounding = 50 + int( float(stats[20])*5 )
-            int_d = int( (block + rebounding)/2 )
+            int_d = int( (block + rebounding)/2.1 )
             out_d = int( (steal + out_s + passing)/3 )
             ins_t = float(stats[28])+float(stats[29]) #% of shots from within 10 ft
             mid_t = float(stats[30])+float(stats[31]) #% of mid range shots
@@ -49,6 +51,16 @@ class Drafter:
             real_fga = float(stats[7])
             name = stats[0] + " " + stats[1] + " " + stats[2]
             gained_attributes = []
+
+            if int(stats[39])!=0: #on all nba team
+                int_s += (4 - int(stats[39])) * 2
+                mid_s += (4 - int(stats[39]))* 2
+                out_s += (4 - int(stats[39])) * 2
+                passing += (4 - int(stats[39])) * 2
+            if int(stats[40])!=0: #alldef
+                int_d += (5 - int(stats[40])) * 2
+                out_d += (5 - int(stats[40])) * 2
+
             gen_player = bbplayer(name, pref_pos, height, weight, speed, age, int_s, mid_s, out_s, passing, handling, steal, block, int_d, out_d, rebounding, ins_t, mid_t, out_t, real_fga, gained_attributes)
             player_list.append(gen_player)
 

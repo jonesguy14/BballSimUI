@@ -149,4 +149,4 @@ class team:
             raise KeyError("ur dumb")
 
     def fudge_num_games(self):
-        self.wins = int( 82/60 * self.wins )
+        self.wins = int( 82/( self.pointg.stats_gms ) * self.wins )
