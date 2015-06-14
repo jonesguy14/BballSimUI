@@ -16,11 +16,8 @@ class App(Frame):
 
         drafter = Drafter()
         draft_players = drafter.draft_generate_from_file()
-        self.play_real_season(draft_players)
-        """
-        #StanSmall = bbplayer("Smally", 3, 80, 200, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, ["k", "k", "k", "k", "k"])
-        #draft_players.append(StanSmall)
-
+        #self.play_real_season(draft_players)
+        
         #sort draft_players by overall for easier drafting
         player_sort_ovr = []
         for p in draft_players:
@@ -47,7 +44,7 @@ class App(Frame):
         player_team = team.empty()
         player_team.name = "PLAYER TEAM"
 
-        self.draft_buttons(final_sort, player_team, opponents_list, 1)"""
+        self.draft_buttons(final_sort, player_team, opponents_list, 1)
 
 
     def draft_player(self, player, player_list, opponents_list, team, dround):
@@ -211,6 +208,14 @@ class App(Frame):
         while itr < len(teams_arr):
             ttr = itr + 1
             while ttr < len(teams_arr):
+                playgame(teams_arr[itr], teams_arr[ttr], 0, 0).wins += 1
+                playgame(teams_arr[ttr], teams_arr[itr], 0, 0).wins += 1
+                playgame(teams_arr[itr], teams_arr[ttr], 0, 0).wins += 1
+                playgame(teams_arr[ttr], teams_arr[itr], 0, 0).wins += 1
+                playgame(teams_arr[itr], teams_arr[ttr], 0, 0).wins += 1
+                playgame(teams_arr[ttr], teams_arr[itr], 0, 0).wins += 1
+                playgame(teams_arr[itr], teams_arr[ttr], 0, 0).wins += 1
+                playgame(teams_arr[ttr], teams_arr[itr], 0, 0).wins += 1
                 playgame(teams_arr[itr], teams_arr[ttr], 0, 0).wins += 1
                 playgame(teams_arr[ttr], teams_arr[itr], 0, 0).wins += 1
                 playgame(teams_arr[itr], teams_arr[ttr], 0, 0).wins += 1

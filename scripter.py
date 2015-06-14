@@ -5,11 +5,11 @@ import random
 import math
 
 def calc_mismatch(shooter, defender, pr):
-    int_mis = 2*shooter.int_s - defender.int_d
-    mid_mis = 2*shooter.mid_s - (defender.out_d + defender.int_d)/2
-    out_mis = 2*shooter.out_s - defender.out_d
+    int_mis = (2*shooter.int_s - defender.int_d) * shooter.ins_t
+    mid_mis = (2*shooter.mid_s - (defender.out_d + defender.int_d)/2) * shooter.mid_t
+    out_mis = (2*shooter.out_s - defender.out_d) * shooter.out_t
     if pr==1: print(int_mis + mid_mis + out_mis)
-    return int_mis + mid_mis + out_mis
+    return (((int_mis + mid_mis + out_mis)*shooter.real_fga)**1.3)/100
 
 def detect_mismatch(offense, defense, pr):
     pg_diff = calc_mismatch(offense.pointg, defense.pointg, pr)
@@ -71,7 +71,7 @@ def get_season_awards(teams):
     for team in teams:
         #all nba first team
         for i in range(5):
-            team_calc = team.player_array[i].stats_tot_pts*2 + team.player_array[i].stats_tot_ass*1.3 + team.player_array[i].stats_tot_reb*0.8 + team.player_array[i].stats_tot_stl*1.2 + team.player_array[i].stats_tot_blk*1.2 + team.wins*2
+            team_calc = team.player_array[i].stats_tot_pts*1.4 + team.player_array[i].stats_tot_ass*1.3 + team.player_array[i].stats_tot_reb*0.8 + team.player_array[i].stats_tot_stl*1.2 + team.player_array[i].stats_tot_blk*1.2 + (team.wins*2)/60
             if team_calc > nba_first_team_scores[i]:
                 nba_first_team_scores[i] = team_calc
                 nba_first_team[i] = team.player_array[i]
@@ -79,12 +79,14 @@ def get_season_awards(teams):
             
         for p in team.player_array:
             #MVP
-            mvp_calc = p.stats_tot_pts*2 + p.stats_tot_ass*1.3 + p.stats_tot_reb*0.8 + p.stats_tot_stl*1.2 + p.stats_tot_blk*1.2 + team.wins*30
+            mvp_calc = (p.stats_tot_pts*1.4 + p.stats_tot_ass*1.3 + p.stats_tot_reb*0.8 + p.stats_tot_stl*1.2 + p.stats_tot_blk*1.2)/p.stats_gms + (team.wins*30)/60
             if mvp_calc > mvp_score:
                 mvp_score = mvp_calc
                 mvp = p
                 mvp_team = team
-                print("found new MVP: " + p.name + " from " + team.name + " with score of " + str(int(mvp_score)))
+                print("FOUND NEW MVP: " + p.name + " from " + team.name + " with score of " + str(int(mvp_score)))
+            elif mvp_calc > 75:
+                print("big mvp score: " + p.name + " from " + team.name + " with score of " + str(int(mvp_calc)))
             #DPOTY
             dpy_calc = p.stats_tot_reb*0.1 + p.stats_tot_stl + p.stats_tot_blk + team.wins*5
             if dpy_calc > dpy_score:
@@ -95,7 +97,31 @@ def get_season_awards(teams):
     return mvp, mvp_team, mvp_score, dpy, dpy_team, dpy_score, nba_first_team, nba_first_team_from, nba_first_team_scores
 
 def intelligent_pass(who_poss, offense, defense, matches):
-    tot_real_fga = offense.pointg.real_fga + offense.shootg.real_fga + offense.smallf.real_fga + offense.powerf.real_fga + offense.center.real_fga
+
+    #calculate real tendencies, ie real life fga with mismatches taken into acct
+    mism_factor = 18
+    pg_ten = offense.pointg.real_fga + matches[0]/mism_factor
+    sg_ten = offense.shootg.real_fga + matches[1]/mism_factor
+    sf_ten = offense.smallf.real_fga + matches[2]/mism_factor
+    pf_ten = offense.powerf.real_fga + matches[3]/mism_factor
+    cn_ten = offense.center.real_fga + matches[4]/mism_factor
+
+    tot_real_ten = pg_ten + sg_ten + sf_ten + pf_ten + cn_ten
+
+    who_pass = random.random()*tot_real_ten
+
+    if who_pass < pg_ten:
+        return offense.pointg
+    elif who_pass < (pg_ten + sg_ten):
+        return offense.shootg
+    elif who_pass < (pg_ten + sg_ten + sf_ten):
+        return offense.smallf
+    elif who_pass < (pg_ten + sg_ten + sf_ten + pf_ten):
+        return offense.powerf
+    else:
+        return offense.center
+
+    """tot_real_fga = offense.pointg.real_fga + offense.shootg.real_fga + offense.smallf.real_fga + offense.powerf.real_fga + offense.center.real_fga
 
     who_pass = random.random()*tot_real_fga
 
@@ -108,7 +134,7 @@ def intelligent_pass(who_poss, offense, defense, matches):
     elif who_pass < (offense.pointg.real_fga + offense.shootg.real_fga + offense.smallf.real_fga + offense.powerf.real_fga): #and offense.powerf.real_fga!=who_poss.real_fga:
         return offense.powerf
     else:
-        return offense.center
+        return offense.center"""
 
     """sorted_matches = sorted(matches)
 

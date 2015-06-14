@@ -27,7 +27,7 @@ class ai_opponent:
         top = 1
         while made_selection==False:
             for p in player_list:
-                if p.overall == overalls[len(player_list)-top]:
+                if p.overall == overalls[len(player_list)-top] and random.random()>0.25: #select best guy 75% of time
                     if self.ai_team.player_array[p.pref_pos-1] == None:
                         print(self.name, "has selected", p.name, p.pref_pos, " ovr:", p.overall)
                         made_selection = True
